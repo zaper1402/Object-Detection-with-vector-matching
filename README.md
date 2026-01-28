@@ -4,6 +4,10 @@ This is a Cuda code of the video object detection using vector matching and homo
 
 #### Team Members: Muhammad Zahid, Sadikshya Satyal, Ayodeji Ibrahim, Ashir Kulshreshtha
 
+#### Working Demo
+
+![Demo](./output/output_video.mp4
+
 ## Project Structure
 
 ```
