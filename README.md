@@ -6,7 +6,7 @@ This is a Cuda code of the video object detection using vector matching and homo
 
 #### Working Demo
 
-![Demo](./output/output_video.mp4
+![Demo](./output/output_video.mp4)
 
 ## Project Structure
 
