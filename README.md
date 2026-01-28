@@ -41,8 +41,9 @@ video_detection_cuda/
 - **Feature Matching**: Descriptor matching using BFMatcher
 - **Homography Computation**: Perspective transform calculation
 
-Note* : Setup time for python is 5-10 min
+
 ## Python Implementation on Mahti (Easier to run)
+### **Note : Setup time for python is 5-10 min**
 
 #### Sinteractive command ( if not in compute node )
 ```bash
@@ -77,8 +78,9 @@ python video_detection.py
 
 
 
-Note: Setup time for this is 2-3 hours as lot of dependecies are need to be installed seperately from source.
+
 ## Building on CUDA files on Mahti Supercomputer
+#### **Note: Setup time for this is 2-3 hours as lot of dependecies are need to be installed seperately from source.**
 
 ### Prerequisites
 
