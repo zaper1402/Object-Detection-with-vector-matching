@@ -80,7 +80,7 @@ python video_detection.py
 
 
 ## Building on CUDA files on Mahti Supercomputer
-#### **Note: Setup time for this is 2-3 hours as lot of dependecies are need to be installed seperately from source.**
+### **Note: Setup time for this is 2-3 hours as lot of dependecies are need to be installed seperately from source.**
 
 ### Prerequisites
 
