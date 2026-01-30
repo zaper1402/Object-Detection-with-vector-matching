@@ -14,17 +14,14 @@ using namespace std;
 
 /**
  * Main function: CUDA-accelerated video object detection
- * Combines GPU image processing with CPU feature matching
  * 
- * GPU Accelerated Operations:
+ * Operations:
  * 1. BGR to Grayscale conversion
  * 2. Image resizing
  * 3. Bounding box drawing
- * 
- * CPU Operations (can be GPU accelerated in future):
- * 1. SIFT/ORB feature detection (requires OpenCV CUDA modules)
- * 2. Feature matching
- * 3. Homography computation
+ * 4. SIFT/ORB feature detection (requires OpenCV CUDA modules)
+ * 5. Feature matching
+ * 6. Homography computation
  */
 int main(int argc, char *argv[]) {
     // Initialize timing
@@ -75,27 +72,22 @@ int main(int argc, char *argv[]) {
     
     // Open video
     printf("\n=== Opening Video ===\n");
-    printf("DEBUG: video_path='%s'\n", video_path);
+    printf("video_path='%s'\n", video_path);
 
     // quick file existence/readability check
     FILE *vf = fopen(video_path, "rb");
     if (vf) {
         fclose(vf);
-        printf("DEBUG: fopen succeeded - file exists and is readable\n");
     } else {
-        printf("DEBUG: fopen failed for %s (errno=%d): ", video_path, errno);
         perror("");
     }
 
     // print current working directory using shell (works on Windows)
-    printf("DEBUG: current working directory (system 'cd'):\n");
     int rc = system("cd");
-    printf("DEBUG: system('cd') returned %d\n", rc);
 
     // try opening with VideoCapture and log return
     VideoCapture cap;
     bool opened = cap.open(video_path);
-    printf("DEBUG: VideoCapture::open returned %d, isOpened=%d\n", opened, (int)cap.isOpened());
     if (!cap.isOpened()) {
         printf("Error: Cannot open video at %s\n", video_path);
         return -1;
@@ -109,8 +101,6 @@ int main(int argc, char *argv[]) {
     printf("Video: %dx%d @ %.2f fps, %d frames\n", 
            frame_width, frame_height, fps, total_frames);
     
-    // Create output directory if needed
-    system("mkdir -p ../Output/main_video_detection_gpu");
     
     // Prepare video writer
     int fourcc = VideoWriter::fourcc('X', 'V', 'I', 'D');
@@ -121,7 +111,7 @@ int main(int argc, char *argv[]) {
     }
     printf("Output video writer initialized\n");
     
-    // CUDA Memory allocation
+    // Memory allocation
     printf("\n=== Allocating GPU Memory ===\n");
     DeviceMatrix d_frame_bgr, d_frame_gray;
     allocateDeviceMatrix(&d_frame_bgr, frame_width, frame_height, 3);
@@ -150,7 +140,7 @@ int main(int argc, char *argv[]) {
                    (float)frame_count * 100.0f / total_frames);
         }
         
-        // GPU: Convert BGR to Grayscale
+        // Convert BGR to Grayscale
         if (frame.data) {
             // Create host matrix for frame
             Matrix h_frame_bgr;
@@ -162,7 +152,7 @@ int main(int argc, char *argv[]) {
             // Transfer to GPU
             transferToDevice(&h_frame_bgr, &d_frame_bgr);
             
-            // GPU Kernel: BGR to Grayscale
+            // Convert BGR to Grayscale
             checkCudaErrors(gpu_bgr2grayscale(d_frame_bgr.d_data, d_frame_gray.d_data, 
                                               frame_width, frame_height));
             
@@ -178,7 +168,7 @@ int main(int argc, char *argv[]) {
             transferFromDevice(&d_frame_gray_tmp, &h_frame_gray);
         }
         
-        // CPU: Feature detection and matching
+        // Feature detection and matching
         vector<KeyPoint> kp2;
         Mat des2;
         
@@ -253,7 +243,6 @@ int main(int argc, char *argv[]) {
                 // Draw bounding box on frame
                 polylines(frame_with_rect, int_corners, true, Scalar(0, 255, 0), 3, LINE_AA);
                 
-                // GPU: Could accelerate drawing here if needed
                 // For now, OpenCV handles it
                 
                 drawMatches(query_img, kp1, frame_with_rect, kp2,

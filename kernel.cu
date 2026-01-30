@@ -1,6 +1,45 @@
 #include "support.h"
 #include <cuda_runtime.h>
 
+
+
+// Wrapper function for BGR to Grayscale conversion
+cudaError_t gpu_bgr2grayscale(unsigned char *d_bgr, unsigned char *d_gray,
+                              int width, int height) {
+    dim3 block(16, 16);
+    dim3 grid((width + 15) / 16, (height + 15) / 16);
+    
+    bgr2grayscale_kernel<<<grid, block>>>(d_bgr, d_gray, width, height);
+    
+    return cudaGetLastError();
+}
+
+// Wrapper function for image resizing
+cudaError_t gpu_resize(unsigned char *d_src, unsigned char *d_dst,
+                       int src_width, int src_height,
+                       int dst_width, int dst_height) {
+    dim3 block(16, 16);
+    dim3 grid((dst_width + 15) / 16, (dst_height + 15) / 16);
+    
+    resize_kernel<<<grid, block>>>(d_src, d_dst, src_width, src_height, 
+                                   dst_width, dst_height);
+    
+    return cudaGetLastError();
+}
+
+// Wrapper function for drawing polylines
+cudaError_t gpu_draw_polyline(unsigned char *d_frame, int width, int height,
+                             float *d_corners, int num_corners,
+                             unsigned char r, unsigned char g, unsigned char b) {
+    dim3 block(16, 16);
+    dim3 grid((width + 15) / 16, (height + 15) / 16);
+    
+    draw_polyline_kernel<<<grid, block>>>(d_frame, width, height, d_corners, 
+                                         num_corners, r, g, b);
+    
+    return cudaGetLastError();
+}
+
 // CUDA kernel for converting BGR to Grayscale
 // Each thread processes one pixel
 __global__ void bgr2grayscale_kernel(unsigned char *d_bgr, unsigned char *d_gray, 
@@ -68,39 +107,4 @@ __global__ void draw_polyline_kernel(unsigned char *d_frame, int width, int heig
     }
 }
 
-// Wrapper function for BGR to Grayscale conversion
-cudaError_t gpu_bgr2grayscale(unsigned char *d_bgr, unsigned char *d_gray,
-                              int width, int height) {
-    dim3 block(16, 16);
-    dim3 grid((width + 15) / 16, (height + 15) / 16);
-    
-    bgr2grayscale_kernel<<<grid, block>>>(d_bgr, d_gray, width, height);
-    
-    return cudaGetLastError();
-}
 
-// Wrapper function for image resizing
-cudaError_t gpu_resize(unsigned char *d_src, unsigned char *d_dst,
-                       int src_width, int src_height,
-                       int dst_width, int dst_height) {
-    dim3 block(16, 16);
-    dim3 grid((dst_width + 15) / 16, (dst_height + 15) / 16);
-    
-    resize_kernel<<<grid, block>>>(d_src, d_dst, src_width, src_height, 
-                                   dst_width, dst_height);
-    
-    return cudaGetLastError();
-}
-
-// Wrapper function for drawing polylines
-cudaError_t gpu_draw_polyline(unsigned char *d_frame, int width, int height,
-                             float *d_corners, int num_corners,
-                             unsigned char r, unsigned char g, unsigned char b) {
-    dim3 block(16, 16);
-    dim3 grid((width + 15) / 16, (height + 15) / 16);
-    
-    draw_polyline_kernel<<<grid, block>>>(d_frame, width, height, d_corners, 
-                                         num_corners, r, g, b);
-    
-    return cudaGetLastError();
-}
